@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import *
 from .models import User
+import bcrypt
 
 def index(request):
     return render(request, "register.html")
@@ -14,6 +15,10 @@ def register(request):
         user.password = request.POST.get("password")
         user.confirmPassword = request.POST.get("confirmPassword")
         if user.password == user.confirmPassword:
+            psw = user.password.encode('utf-8', 'ignore')
+            hashed = bcrypt.hashpw(psw, bcrypt.gensalt())
+            user.password = hashed
+            user.confirmPassword = hashed
             user.save()
             return render(request, "succesfullyRegistered.html")
         else:
