@@ -18,9 +18,9 @@ from django.urls import path
 from register_login_app.views import *
 
 urlpatterns = [
-    path('', index),
-    path('register', register),
-    path('login', login),
-    path('user/verify/<auth_token>', verify),  
+    path('', index, name="home"),
+    path('register/', register, name="register"),
+    path('login/', login, name="login"),
+    path('user/verify/<auth_token>', verify, name="verify"),  
     path('admin/', admin.site.urls),
 ]

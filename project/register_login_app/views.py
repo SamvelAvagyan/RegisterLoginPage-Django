@@ -1,3 +1,4 @@
+import email
 from django.shortcuts import render
 from django.http import *
 from .models import User
@@ -12,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 def index(request):
-    return render(request, "register.html")
+    return render(request, "home.html")
 
 def register(request):
     if request.method == "POST":
@@ -34,9 +35,9 @@ def register(request):
             user.save()
             return render(request, "succesfullyRegistered.html")
         else:
-            return render(request, "register.html", {"isValid": False})
+            return render(request, "register.html", {"isNotValid": "Confirm password and password are not match"})
     else:
-        return HttpResponseRedirect("/")
+        return render(request, "register.html")
 
 def send_mail_after_registration(email , token):
     subject = 'Your accounts need to be verified'
@@ -48,7 +49,6 @@ def send_mail_after_registration(email , token):
 def verify(request , auth_token):
     try:
         user = User.objects.filter(auth_token = auth_token).first()
-
         if user:
             if user.isVerified:
                 messages.success(request, 'Your account is already verified.')
@@ -62,3 +62,22 @@ def verify(request , auth_token):
     except Exception as e:
         print(e)
         return redirect('/')
+
+def login(request):
+    if request.method == "POST":
+        try:
+            user = User.objects.filter(email = request.POST.get("email")).first()
+            if user.isVerified == True:
+                if user.password == request.POST.get("password"):
+                    render(request, "home.html", user)
+                else:
+                    render(request, "login.html", {"wrongPass": "Password is wrong"})
+            else:
+                render(request, "login.html", {"isNotVerified": "Your email is not verified"})
+        except Exception as e:
+            print(e)
+            return redirect('login')
+            #render(request, "login.html")
+    else:
+        return redirect('login')
+        #render(request, "login.html")
